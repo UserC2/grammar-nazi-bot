@@ -1,4 +1,5 @@
 # Grammar Nazi Bot
 
-Does exactly what you would expect it to.
-Silently records your errors and can be pinged to reveal your lack of grammatical expertise.
+Silently records your errors while you speak to your friends.
+
+Mention the bot to reveal your lack of grammatical expertise.
