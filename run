@@ -1,5 +1,5 @@
 ~!/bin/bash
 
-echo "The bot will run in the background. Use top and look for 'python'."
-echo "The bot's log is located in nohup.out."
+rm nohup.out # clear old logs
+echo "The bot will run in the background. Its log is located in nohup.out."
 nohup python3 main.py "$(<BOT_TOKEN)" &

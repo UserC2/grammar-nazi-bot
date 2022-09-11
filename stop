@@ -1,0 +1,7 @@
+#!/bin/bash
+
+kill -15 $(ps | grep -P -o '(?<=\G )\d+(?=.*?main\.py)')
+
+# macOS users:
+# install GNU grep (brew install grep)
+# add `g` before `grep` -> `grep` becomes `ggrep`
