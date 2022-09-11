@@ -1,7 +1,12 @@
 #!/bin/bash
 
-kill -15 $(ps | grep -P -o '(?<=\G )\d+(?=.*?main\.py)')
+kill -15 $(ps | grep -P -o '\G\d+(?=.*?main\.py)')
+# uncomment if above doesn't work (comment out above)
+# kill -15 $(ps | grep -P -o '(?<=\G )\d+(?=.*?main\.py)')
 
 # macOS users:
 # install GNU grep (brew install grep)
-# add `g` before `grep` -> `grep` becomes `ggrep`
+# uncomment below (comment out above lines)
+# kill -15 $(ps | ggrep -P -o '\G\d+(?=.*?main\.py)')
+# uncomment if above doesn't work (comment out above)
+# kill -15 $(ps | ggrep -P -o '(?<=\G )\d+(?=.*?main\.py)')
