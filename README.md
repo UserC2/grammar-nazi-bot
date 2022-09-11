@@ -7,6 +7,7 @@ Mention the bot to reveal your lack of grammatical expertise.
 ### Installation:
 - `pip install discord.py`
 - `pip install language-tool-python`
+- `pip install pymongo`
 - Follow the instructions for your operating system [here](https://www.mongodb.com/docs/manual/tutorial/) to install mongoDB
 - Paste the command used to start mongoDB (on the above website) into dbstart
 - Paste the command used to start mongoDB (on the above website) into dbstop
