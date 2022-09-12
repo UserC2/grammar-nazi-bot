@@ -1,4 +1,4 @@
-~!/bin/bash
+#!/bin/bash
 
 rm nohup.out # clear old logs
 echo "The bot will run in the background. Its log is located in nohup.out."
