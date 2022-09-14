@@ -1,5 +1,6 @@
 #!/bin/bash
 
-rm nohup.out # clear old logs
-echo "The bot will run in the background. Its log is located in nohup.out."
-nohup python3 main.py "$(<BOT_TOKEN)" &
+rm bot.out # clear old logs
+echo "The bot will run in the background. Its log is located in bot.out."
+nohup bash -c "python3 -u main.py \"$(<BOT_TOKEN)\"" > bot.out &
+# -u parameter prevents buffering so log messages show up in chronological order
