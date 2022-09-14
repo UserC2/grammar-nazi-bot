@@ -121,6 +121,17 @@ def db_connect(path):
     return connection
 
 
+def db_execute_single_read_query(connection, query):
+    cursor = connection.cursor()
+    result = None
+    try:
+        cursor.execute(query)
+        result = cursor.fetchone()
+        return result[0] if result is not None else result
+    except Error as e:
+        print(f'Database error: "{e}" occured!')
+
+
 def db_execute_read_query(connection, query):
     cursor = connection.cursor()
     result = None
@@ -172,7 +183,7 @@ def db_command_get_score(connection, discord_id):
     WHERE
         discord_id = {discord_id};\
     """
-    return db_execute_read_query(connection, select_score)[0][0]
+    return db_execute_single_read_query(connection, select_score) # [0][0]
     # db_execute_read_query returns a tuple of tuples, so [0][0] is used to
     # retrieve the actual score
 
@@ -201,14 +212,7 @@ def db_command_user_exists(connection, discord_id):
     WHERE
         discord_id = {discord_id}
     """
-    cursor = connection.cursor()
-    result = None
-    try:
-        cursor.execute(check_exists)
-        result = cursor.fetchone()
-        return result is not None
-    except Error as e:
-        print(f'Database error: "{e}" occured!')
+    return db_execute_single_read_query(connection, check_exists) is not None
 
 
 if __name__ == '__main__':
@@ -226,3 +230,4 @@ if __name__ == '__main__':
 # Todo:
 # Implement allow list for check_message() (e.g typing in bot command or 'gn'/'Gn')
 # Implement check() (done for single user, not done for checking other users)
+# Comments for functions
