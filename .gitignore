@@ -1,2 +1,4 @@
 BOT_TOKEN
 nohup.out
+bot.out
+user_scores.sqlite
