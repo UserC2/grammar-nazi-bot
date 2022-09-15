@@ -60,11 +60,11 @@ async def check(ctx, *args):
         # if matching, send their score
 
 
-@bot.listen('on_message')  # avoid conflicting with commands
+@bot.listen('on_message')  # avoid conflicting with commands -> it does anyway?
 async def check_message(message):
-    # prevents bot from responding to its own messages
+    # Prevents bot from responding to its own messages
     if message.author == bot.user:
-        return  # else this responds to our messages
+        return  # Otherwise this responds to our messages
     await message.channel.send('recieved') # debug
     # this currently checks bot commands (from the user), it should not. (add allow list)
     matches = tool.check(message.content)
@@ -183,10 +183,18 @@ def db_command_get_score(connection, discord_id):
     WHERE
         discord_id = {discord_id};\
     """
-    return db_execute_single_read_query(connection, select_score) # [0][0]
-    # db_execute_read_query returns a tuple of tuples, so [0][0] is used to
-    # retrieve the actual score
+    return db_execute_single_read_query(connection, select_score)
 
+
+def db_command_remove_user(connection, discord_id):
+    remove_user = f"""
+    DELETE
+    FROM
+        users
+    WHERE
+        discord_id = {discord_id};
+    """
+    db_execute_query(connection, remove_user)
 
 def db_command_update_score(connection, discord_id, score_increase):
     print("running update score")
@@ -197,7 +205,7 @@ def db_command_update_score(connection, discord_id, score_increase):
     SET
         user_score = {original_score + score_increase}
     WHERE
-        discord_id = {discord_id}
+        discord_id = {discord_id};
     """
     db_execute_query(connection, update_score)
 
@@ -210,7 +218,7 @@ def db_command_user_exists(connection, discord_id):
     FROM
         users
     WHERE
-        discord_id = {discord_id}
+        discord_id = {discord_id};
     """
     return db_execute_single_read_query(connection, check_exists) is not None
 
@@ -219,15 +227,15 @@ if __name__ == '__main__':
     print('entered main')
     db = db_connect(DB_PATH)
     db_command_create_users_table(db)
-    if len(sys.argv) < 2: # 1 argument for program name +1 for bot token
+    if len(sys.argv) < 2:  # 1 argument for program name +1 for bot token
         print('Bot token not provided. Bot shutting down.')
         exit()
-    bot.run(sys.argv[1]) # bot token
+    bot.run(sys.argv[1])  # Bot token
 
-
-# make sqlite into class once working
 
 # Todo:
 # Implement allow list for check_message() (e.g typing in bot command or 'gn'/'Gn')
 # Implement check() (done for single user, not done for checking other users)
 # Comments for functions
+# Make database functions into class?
+# Docstrings?
