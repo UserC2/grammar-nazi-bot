@@ -38,16 +38,18 @@ async def check(ctx, *args):
     specified.
     """
     if len(args) == 0:
-        # check current user
-        await ctx.send(f'Checking score of: {ctx.author}')
+        # Check the author of the command when no user is specified.
+        await ctx.send(f'Checking score of: {ctx.author}') # debug
         if db_command_user_exists(db, ctx.author.id):
-            await ctx.send(f'Author UserID: {ctx.author.id}')
-            await ctx.send(f'Score: {db_command_get_score(db, ctx.author.id)}')
+            await ctx.send(f'Author UserID: {ctx.author.id}') # debug
+            score = db_command_get_score(db, ctx.author.id)
+            await ctx.send(f'Score of {ctx.author}: {score}')
         else:
+            # If the user doesn't exist, then they have not been caught making
+            # any spelling errors, so their score is 0.
             await ctx.send(f'Score: 0')
-            # if user doesn't exist, they haven't been found making a spelling error
     else:
-        # check specified user
+        # Check the specified user.
         await ctx.send(f'Checking score of: {args[0]}')
         # need to parse username from args[0] into userid
         #if db_command_user_exists(db, ctx.author.id):
@@ -67,24 +69,20 @@ async def check(ctx, *args):
 @bot.listen('on_message')  # avoid conflicting with commands -> it does anyway?
 async def check_message(message):
     """Check a message for grammatical errors and add to the user's score."""
-    # Prevents bot from responding to its own messages
     if message.author == bot.user:
-        return  # Otherwise this responds to our messages
+        # Prevent bot from responding to its own messages.
+        return
     await message.channel.send('recieved') # debug
     # this currently checks bot commands (from the user), it should not. (add allow list)
     matches = tool.check(message.content)
     if matches:
-        await message.channel.send(f"You can't spell! ${len(matches)}") # temp debug
+        await message.channel.send(f"You can't spell! ${len(matches)}") # debug
         if db_command_user_exists(db, message.author.id):
             db_command_update_score(db, message.author.id, len(matches))
         else:
             db_command_add_user(db, message.author.id, len(matches))
-        # add len(matches) to message.author's entry in the database
-        # store the author's userid in the database, NOT their username and tag, otherwise their score will be lost if their nickname changes
-        # if > 0 mistakes, add mistakes to user entry
-        # if user entry doesn't exist, create it
-    else: # eliminate once debug done, should do nothing if spelling is correct
-        await message.channel.send("You can spell!") # temp debug
+    else: # debug
+        await message.channel.send("You can spell!") # debug
 
 
 @bot.event
@@ -208,6 +206,7 @@ def db_command_remove_user(connection, discord_id):
     """
     db_execute_query(connection, remove_user)
 
+
 def db_command_update_score(connection, discord_id, score_increase):
     """Increase the specified discord user's score."""
     original_score = db_command_get_score(connection, discord_id)
@@ -238,7 +237,7 @@ def db_command_user_exists(connection, discord_id):
 if __name__ == '__main__':
     db = db_connect(DB_PATH)
     db_command_create_users_table(db)
-    if len(sys.argv) < 2:  # 1 argument for program name +1 for bot token
+    if len(sys.argv) < 2:  # 1 argument for program name + 1 for bot token
         print('Bot token not provided. Bot shutting down.')
         exit()
     bot.run(sys.argv[1])  # Bot token
@@ -247,4 +246,3 @@ if __name__ == '__main__':
 # Todo:
 # Implement allow list for check_message() (e.g typing in bot command or 'gn'/'Gn')
 # Implement check() (done for single user, not done for checking other users)
-# Make database functions into class?
