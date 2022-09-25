@@ -1,5 +1,3 @@
-#  if message.content.startswith('$hello'):
-
 import discord
 from discord.ext import commands
 import language_tool_python
@@ -29,11 +27,16 @@ bot = commands.Bot(case_insensitive=True,
 
 @bot.event
 async def on_ready():
+    """Print debug info to the log when the bot finishes starting up."""
     print('We have logged in as {0.user}'.format(bot))
 
 
 @bot.command()
 async def check(ctx, *args):
+    """
+    Display the specified user's score, or the author's score if no user is
+    specified.
+    """
     if len(args) == 0:
         # check current user
         await ctx.send(f'Checking score of: {ctx.author}')
@@ -58,10 +61,12 @@ async def check(ctx, *args):
         # need to figure out user id from username (is that possible?)
         # if not matching any, send error
         # if matching, send their score
+        #  if message.content.startswith('$hello'):
 
 
 @bot.listen('on_message')  # avoid conflicting with commands -> it does anyway?
 async def check_message(message):
+    """Check a message for grammatical errors and add to the user's score."""
     # Prevents bot from responding to its own messages
     if message.author == bot.user:
         return  # Otherwise this responds to our messages
@@ -84,6 +89,7 @@ async def check_message(message):
 
 @bot.event
 async def on_command_error(ctx, error):
+    """Check for and handle any command errors the bot experiences."""
     if isinstance(error, commands.CommandInvokeError):
         error = error.original
 
@@ -110,6 +116,7 @@ async def on_command_error(ctx, error):
 
 
 def db_connect(path):
+    """Return connection to SQLite3 database at specified path.."""
     connection = None
     try:
         connection = sqlite3.connect(path)
@@ -122,6 +129,7 @@ def db_connect(path):
 
 
 def db_execute_single_read_query(connection, query):
+    """Return the first matching result from a read query."""
     cursor = connection.cursor()
     result = None
     try:
@@ -133,6 +141,7 @@ def db_execute_single_read_query(connection, query):
 
 
 def db_execute_read_query(connection, query):
+    """Return all matching results from a read query."""
     cursor = connection.cursor()
     result = None
     try:
@@ -144,6 +153,7 @@ def db_execute_read_query(connection, query):
 
 
 def db_execute_query(connection, query):
+    """Execute a query without returning a result."""
     cursor = connection.cursor()
     try:
         cursor.execute(query)
@@ -153,6 +163,7 @@ def db_execute_query(connection, query):
 
 
 def db_command_add_user(connection, discord_id, start_score):
+    """Insert a new discord user into the database."""
     add_user = f"""
     INSERT INTO
         users (discord_id, user_score)
@@ -163,7 +174,7 @@ def db_command_add_user(connection, discord_id, start_score):
 
 
 def db_command_create_users_table(connection):
-    print("running create users table")
+    """Create the users table if it does not exist."""
     create_users_table = """
     CREATE TABLE IF NOT EXISTS users (
         discord_id INTEGER PRIMARY KEY,
@@ -174,7 +185,7 @@ def db_command_create_users_table(connection):
 
 
 def db_command_get_score(connection, discord_id):
-    print("running get score")
+    """Return the score of the specified user."""
     select_score = f"""
     SELECT
         user_score
@@ -187,6 +198,7 @@ def db_command_get_score(connection, discord_id):
 
 
 def db_command_remove_user(connection, discord_id):
+    """Delete a discord user from the database."""
     remove_user = f"""
     DELETE
     FROM
@@ -197,7 +209,7 @@ def db_command_remove_user(connection, discord_id):
     db_execute_query(connection, remove_user)
 
 def db_command_update_score(connection, discord_id, score_increase):
-    print("running update score")
+    """Increase the specified discord user's score."""
     original_score = db_command_get_score(connection, discord_id)
     update_score = f"""
     UPDATE
@@ -211,7 +223,7 @@ def db_command_update_score(connection, discord_id, score_increase):
 
 
 def db_command_user_exists(connection, discord_id):
-    print("running user_exists")
+    """Return true if the discord user is already in the database."""
     check_exists = f"""
     SELECT
         user_score
@@ -224,7 +236,6 @@ def db_command_user_exists(connection, discord_id):
 
 
 if __name__ == '__main__':
-    print('entered main')
     db = db_connect(DB_PATH)
     db_command_create_users_table(db)
     if len(sys.argv) < 2:  # 1 argument for program name +1 for bot token
@@ -236,6 +247,4 @@ if __name__ == '__main__':
 # Todo:
 # Implement allow list for check_message() (e.g typing in bot command or 'gn'/'Gn')
 # Implement check() (done for single user, not done for checking other users)
-# Comments for functions
 # Make database functions into class?
-# Docstrings?
